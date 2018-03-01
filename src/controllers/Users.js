@@ -3,21 +3,23 @@ import HttpStatus from 'http-status-codes';
 import { controller, get, post, put, del } from 'koa-dec-router';
 import BaseCtrl from './Base';
 
-@controller('/test')
-export default class TestCtrl extends BaseCtrl {
-    @get('')
+@controller('/users')
+export default class UsersCtrl extends BaseCtrl {
+    @get('/get-users')
     async getUsers(ctx) {
+        /*
         try {
-            const items = await User.find().lean();
-
-            ctx.ok(items);
+            const users = await User.find({}, '-password');
+            ctx.ok(users);
         } catch (err) {
             ctx.throw(HttpStatus.BAD_REQUEST, err.message);
         }
+        */
     }
 
     @post('')
     async createUser(ctx) {
+        /*
         const user = User.create(ctx.request.body);
         try {
             await user.save()
@@ -33,6 +35,7 @@ export default class TestCtrl extends BaseCtrl {
             user: response,
             token
         }
+        */
     }
 
     @get('/:_id')

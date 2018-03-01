@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import validate from 'mongoose-validator';
 import bcrypt from 'bcrypt';
-import { env } from '../lib/env';
+import env from '../lib/env';
 import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema({
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
         type: String,
     }
 });
-
+/*
 userSchema.pre('save', function preSave (next) {
     const user = this;
 
@@ -67,5 +67,5 @@ userSchema.methods.generateToken = function generateToken () {
     const user = this;
     return jwt.sign({ id: user.id }, env.TOKEN)
 };
-
+*/
 export default mongoose.model('User', userSchema);
