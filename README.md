@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/Aenqau/chat-backend.svg?branch=master)](https://travis-ci.org/Aenqau/chat-backend)
 # chat-backend
 
 > A Koa js project
