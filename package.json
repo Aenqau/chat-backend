@@ -12,7 +12,8 @@
     "start": "node dist/bin/www.js",
     "build": "rimraf dist && cross-env NODE_ENV=production babel src -d dist -s",
     "dev": "nodemon src/bin/www.js",
-    "test": "eslint --fix src && prettier --write \"src/**/*.js\" && jest"
+    "test": "eslint --fix src && prettier --write \"src/**/*.js\" && jest",
+    "heroku-prebuild": "npm i --dev && npm i && npm run build"
   },
   "jest": {
     "testEnvironment": "node"
