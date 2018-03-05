@@ -117,7 +117,8 @@
     "env": {
       "production": {
         "plugins": [
-          "source-map-support"
+          "source-map-support",
+          "transform-runtime"
         ],
         "ignore": [
           "**/__tests__/**"
