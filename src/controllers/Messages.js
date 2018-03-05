@@ -1,49 +1,44 @@
-import User from '../models/user';
+import Message from '../models/message';
 import HttpStatus from 'http-status-codes';
 import { controller, get, post, put, del } from 'koa-dec-router';
 import BaseCtrl from './Base';
 
-@controller('/users')
-export default class UsersCtrl extends BaseCtrl {
+@controller('/messages')
+export default class MessagesCtrl extends BaseCtrl {
     @get('')
-    async getUsers(ctx) {
+    async getMessages(ctx) {
         try {
-            const users = await User.find({}, '-password');
-            ctx.ok(users);
+            const messages = await Message.find({}, '-password');
+            ctx.ok(messages);
         } catch (err) {
             ctx.throw(HttpStatus.BAD_REQUEST, err.message);
         }
     }
 
     @post('')
-    async createUser(ctx) {
-        const user = new User(ctx.request.body);
+    async createMessage(ctx) {
+        const message = new Message(ctx.request.body);
         try {
-            await user.save();
+            await message.save();
         } catch (err) {
             ctx.throw(422, err.message);
         }
 
-        const token = user.generateToken();
-        const response = user.toJSON();
-
-        delete response.password;
-
         ctx.body = {
-            user: response,
-            token
+            message: message
         }
     }
 
     @get('/:_id')
-    async getUser (ctx, next) {
+    async getMessage (ctx, next) {
         try {
-            const user = await User.findById(ctx.params.id, '-password');
-            if (!user) {
+            const message = await Message.findById(ctx.params.id);
+            if (!message) {
                 ctx.throw(404)
             }
+
             ctx.body = {
-                user
+                message
             }
         } catch (err) {
             if (err === 404 || err.name === 'CastError') {
@@ -57,23 +52,23 @@ export default class UsersCtrl extends BaseCtrl {
     }
 
     @put('/:_id')
-    async updateUser (ctx) {
-        const user = ctx.body.user;
+    async updateMessage (ctx) {
+        const message = ctx.body.message;
 
-        Object.assign(user, ctx.request.body.user);
+        Object.assign(message, ctx.request.body.message);
 
-        await user.save();
+        await message.save();
 
         ctx.body = {
-            user
+            message
         }
     }
 
     @del('/:_id')
     async deleteUser (ctx) {
-        const user = ctx.body.user;
+        const message = ctx.body.message;
 
-        await user.remove();
+        await message.remove();
 
         ctx.status = 200;
         ctx.body = {

@@ -4,7 +4,10 @@ import bcrypt from 'bcrypt';
 import env from '../lib/env';
 import jwt from 'jsonwebtoken';
 
-const userSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const userSchema = new Schema({
+    _id: Schema.Types.ObjectId,
     name: {
         type: String,
         trim: true,
@@ -23,7 +26,8 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-    }
+    },
+    messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }]
 });
 
 userSchema.pre('save', function preSave (next) {

@@ -1,19 +1,17 @@
 import mongoose from 'mongoose';
-import autoIncrement from 'mongoose-auto-increment';
-
-autoIncrement.initialize(mongoose.connection);
 
 const Schema = mongoose.Schema;
 
 // GET /messages?userId=userId
 
-const schema = new Schema({
-    id: { type: Number, required: true },
-    userId: { type: Number, required: true },
+const messageSchema = new Schema({
+    _id: Schema.Types.ObjectId,
+    author: { type: Schema.Types.ObjectId, ref: 'User' },
+    userId: { type: Schema.Types.ObjectId, required: true },
     body: { type: String, required: true },
-    status: { type: String, required: true }
+    updated: { type: Date, default: Date.now },
+    seen: Boolean
 });
 
-schema.plugin(autoIncrement.plugin, 'message');
 
-export default mongoose.model('message', schema);
+export default mongoose.model('message', messageSchema);
