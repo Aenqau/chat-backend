@@ -12,7 +12,10 @@
     "start": "node dist/bin/www.js",
     "build": "rimraf dist && cross-env NODE_ENV=production babel src -d dist -s",
     "dev": "nodemon src/bin/www.js",
-    "test": "eslint --fix src && prettier --write \"src/**/*.js\""
+    "test": "eslint --fix src && prettier --write \"src/**/*.js\" && jest"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "dependencies": {
     "@koa/cors": "^2.2.1",
@@ -25,7 +28,6 @@
     "koa-bodyparser": "^4.2.0",
     "koa-compress": "^2.0.0",
     "koa-dec-router": "0.0.4",
-    "koa-passport": "^4.0.1",
     "koa-respond": "^1.0.1",
     "koa-router": "^7.3.0",
     "koa-send": "^4.1.2",
@@ -53,11 +55,13 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.4.2",
     "lint-staged": "^6.0.0",
     "nodemon": "^1.14.12",
     "prettier": "^1.7.4",
     "rimraf": "^2.6.2",
-    "smid": "^0.1.1"
+    "smid": "^0.1.1",
+    "supertest": "^3.0.0"
   },
   "eslintConfig": {
     "parser": "babel-eslint",

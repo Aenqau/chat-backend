@@ -4,11 +4,14 @@ import { controller, get, post, put, del } from 'koa-dec-router';
 import BaseCtrl from './Base';
 
 @controller('/messages')
+
 export default class MessagesCtrl extends BaseCtrl {
-    @get('')
+    @get('/:_id')
     async getMessages(ctx) {
         try {
-            const messages = await Message.find({}, '-password');
+            const messages = await Message.find({
+                userId: ctx.params._id
+            }, '-password');
             ctx.ok(messages);
         } catch (err) {
             ctx.throw(HttpStatus.BAD_REQUEST, err.message);
@@ -29,28 +32,6 @@ export default class MessagesCtrl extends BaseCtrl {
         }
     }
 
-    @get('/:_id')
-    async getMessage (ctx, next) {
-        try {
-            const message = await Message.findById(ctx.params.id);
-            if (!message) {
-                ctx.throw(404)
-            }
-
-            ctx.body = {
-                message
-            }
-        } catch (err) {
-            if (err === 404 || err.name === 'CastError') {
-                ctx.throw(404)
-            }
-
-            ctx.throw(500)
-        }
-
-        if (next) { return next() }
-    }
-
     @put('/:_id')
     async updateMessage (ctx) {
         const message = ctx.body.message;
@@ -65,7 +46,7 @@ export default class MessagesCtrl extends BaseCtrl {
     }
 
     @del('/:_id')
-    async deleteUser (ctx) {
+    async deleteMessage (ctx) {
         const message = ctx.body.message;
 
         await message.remove();
