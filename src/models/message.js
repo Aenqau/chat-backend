@@ -2,16 +2,13 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-// GET /messages?userId=userId
-
-const messageSchema = new Schema({
-    _id: Schema.Types.ObjectId,
-    author: { type: Schema.Types.ObjectId, ref: 'User' },
-    userId: { type: Schema.Types.ObjectId, required: true },
+const Message = new Schema({
+    author: { type: Schema.Types.ObjectId, default: process.env.USER_ID },
+    chat: { type: Schema.Types.ObjectId, required: true },
     body: { type: String, required: true },
     updated: { type: Date, default: Date.now },
     seen: Boolean
 });
 
 
-export default mongoose.model('message', messageSchema);
+export default mongoose.model('message', Message);
