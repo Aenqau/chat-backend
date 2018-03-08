@@ -57,7 +57,7 @@ export default class ChatCtrl extends BaseCtrl {
     async createChat(ctx) {
         //  TODO: find if there is a shorter way to check token
         //  check token identity
-        if (ctx.request.body.token === process.env.TOKEN) {
+        if (ctx.request.header.token === process.env.TOKEN) {
             //  Check if that chat already exist
             try {
                 await ChatRoom.find({
