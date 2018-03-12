@@ -3,7 +3,6 @@ import { keyblade } from 'keyblade';
 import { logger } from './logger';
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-process.env.TOKEN = 'someBadAssToken';
 process.env.USER_ID = '5a981b69e8986125f8d78f92';
 
 /**
