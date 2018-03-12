@@ -1,44 +1,60 @@
 import Message from '../models/message';
 import ChatRoom from '../models/chatroom';
 import HttpStatus from 'http-status-codes';
-import { controller, post, put, del } from 'koa-dec-router';
+import { controller, get, post, put, del } from 'koa-dec-router';
+//  import verifyToken from '../middleware/jwt';
 import BaseCtrl from './Base';
 
+//  @controller('/messages', verifyToken())
 @controller('/messages')
 
 export default class MessagesCtrl extends BaseCtrl {
+    //  localhost:5006/api/messages/5aa13d7f4e3bca3a382de894
+    @get('/:_id')
+    async getMessages(ctx) {
+        try {
+            //  check if given chatroom exist, and have current user in it
+            await ChatRoom.find({
+                _id : ctx.params._id,
+                users : { $in : [{_id: process.env.USER_ID}] }
+            });
+
+            const messages = await Message.find({
+                chat : ctx.params._id,
+            });
+
+            ctx.body = {
+                messages: messages
+            }
+        } catch (err) {
+            ctx.status = 404;
+            ctx.body = {
+                status: ctx.params._id
+            }
+        }
+    }
 
     @post('')
     async createMessage(ctx) {
-        //  check token identity
-        if (ctx.request.body.token === process.env.TOKEN) {
-            //  check if user exists in that chat
+        try {
+            await ChatRoom.find({
+                users : { $in : [{_id: process.env.USER_ID}] }
+            });
+            const message = new Message({
+                chat: ctx.request.body.chat,
+                body: ctx.request.body.body
+            });
             try {
-                await ChatRoom.find({
-                    users : { $in : [{_id: process.env.USER_ID}] }
-                });
-                const message = new Message({
-                    chat: ctx.request.body.chat,
-                    body: ctx.request.body.body
-                });
-                try {
-                    await message.save();
-                } catch (err) {
-                    ctx.throw(HttpStatus.BAD_REQUEST, err.message);
-                }
-
-                ctx.body = {
-                    success: true
-                }
+                await message.save();
             } catch (err) {
-                ctx.status = 403;
-                ctx.body = {
-                    success: false
-                }
+                ctx.throw(HttpStatus.BAD_REQUEST, err.message);
             }
-        }
-        else {
-            ctx.status = 401;
+
+            ctx.body = {
+                success: true
+            }
+        } catch (err) {
+            ctx.status = 403;
             ctx.body = {
                 success: false
             }
