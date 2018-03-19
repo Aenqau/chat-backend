@@ -34,11 +34,11 @@ export default class MessagesCtrl extends BaseCtrl {
         }
     }
 
-    @post('')
+    @post('/:_id')
     async createMessage(ctx) {
         try {
             await ChatRoom.find({
-                users : { $in : [{_id: process.env.USER_ID}] }
+              users : { $in : [{_id: ctx.params._id}] }
             });
             const message = new Message({
                 chat: ctx.request.body.chat,
@@ -49,14 +49,13 @@ export default class MessagesCtrl extends BaseCtrl {
             } catch (err) {
                 ctx.throw(HttpStatus.BAD_REQUEST, err.message);
             }
-
             ctx.body = {
                 success: true
             }
         } catch (err) {
             ctx.status = 403;
             ctx.body = {
-                success: false
+                error: err
             }
         }
     }

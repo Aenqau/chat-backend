@@ -8,35 +8,16 @@ import BaseCtrl from './Base';
 @controller('/chat')
 
 export default class ChatCtrl extends BaseCtrl {
-    //  get list of user's chatrooms
-    @get('')
-    async getChats(ctx) {
-        try {
-            const chats = await ChatRoom.find({
-                users : { $in : [{_id: process.env.USER_ID}] }
-            });
-            ctx.ok(chats);
-        } catch (err) {
-            ctx.throw(HttpStatus.BAD_REQUEST, err.message);
-        }
-    }
 
-    //  localhost:5002/api/chat/id:589891235herr
+    //  get list of user's chatrooms
+    //  localhost:5002/api/chat/589891235herr
     @get('/:_id')
     async getChatById(ctx) {
         try {
-            await ChatRoom.find({
-                users : { $in : [{_id: process.env.USER_ID}] }
+            const chat = await ChatRoom.find({
+                users : { $in : [{_id: ctx.params._id}] }
             });
-
-            try {
-                const chat = await ChatRoom.find({
-                    _id: ctx.params._id
-                });
-                ctx.ok(chat);
-            } catch (err) {
-                ctx.throw(HttpStatus.BAD_REQUEST, err.message);
-            }
+            ctx.ok(chat);
         } catch (err) {
             ctx.status = 403;
             ctx.body = {

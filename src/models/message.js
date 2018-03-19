@@ -7,7 +7,7 @@ const Message = new Schema({
     chat: { type: Schema.Types.ObjectId, required: true },
     body: { type: String, required: true },
     updated: { type: Date, default: Date.now },
-    seen: Boolean
+    reads: [{userId: Schema.Types.ObjectId, seen: Boolean}]
 });
 
 
