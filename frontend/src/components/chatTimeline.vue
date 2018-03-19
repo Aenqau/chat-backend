@@ -86,7 +86,7 @@
           responseType: 'json',
         }).then(response => {
           response.data.messages.map((item) => {
-            item.isAuthor = item.author == this.user_id;
+            item.isAuthor = item.author === this.user_id;
             this.messages.push(item);
           });
         });

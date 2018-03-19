@@ -16,11 +16,9 @@
             <el-col :span="18" class="username">{{ chat.name }}</el-col>
             <el-col :span="6" class="date">18:14</el-col>
           </el-row>
-          <p>
-            Lorem ipsum dolor sit amet
+          <p class="last-message">
+            {{ chat.lastMsg }}
           </p>
-          <!-- there will be last msg or first of unread -->
-          <p></p>
         </el-col>
       </el-row>
     </el-container>
@@ -35,7 +33,6 @@
   .chat-room.active {
     background: #CFC7C2;
   }
-
   .chat-room-inner {
     width: 100%;
     align-items: center;
@@ -84,9 +81,19 @@
         await axios.get('/chat/' + this.userid, {
           responseType: 'json',
         }).then(response => {
-          response.data.map((item) => {
-            item.active = false;
-            this.chatList.push(item);
+          response.data.map((chat) => {
+            chat.active = false;
+            chat.lastMsg = '';
+            axios.get('/messages/' + chat._id, {
+              responseType: 'json',
+            }).then(response => {
+              const lastMsgItem = response.data.messages[response.data.messages.length-1];
+              chat.lastMsg = lastMsgItem.body;
+              if (lastMsgItem.author === this.userid) {
+                chat.lastMsg = 'You: '+chat.lastMsg;
+              }
+            });
+            this.chatList.push(chat);
           });
         });
       }
