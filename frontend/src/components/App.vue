@@ -3,13 +3,16 @@
     <el-aside :span="8" v-if="userId">
       <el-container class="rooms">
         <el-header>Messages
-          <div class="add-chat-btn">+</div>
+          <div class="add-chat-btn" @click="createChat">+</div>
         </el-header>
-        <chat-list :userid="userId" v-on:pick_chat="setChat"></chat-list>
+        <chat-list :userid="userId" @pick_chat="setChat"></chat-list>
       </el-container>
     </el-aside>
-    <el-main :span="16" v-if="currentChatId">
-      <chat-timeline :user_id="userId" :current_chat_id="currentChatId" :current_chat_name="currentChatName"></chat-timeline>
+    <el-main :span="16">
+      <chat-timeline ref="timeline"
+                     :user_id="userId"
+                     :current_chat_id="currentChatId"
+                     :current_chat_name="currentChatName"></chat-timeline>
       <text-form :user_id="userId" :current_chat_id="currentChatId"></text-form>
     </el-main>
   </el-container>
@@ -21,6 +24,7 @@
     height: 100vh;
     overflow-y: auto;
   }
+
   .rooms header {
     background: #fffbfb;
     text-align: center;
@@ -42,7 +46,6 @@
 </style>
 
 <script>
-  import NavBar from 'components/navBar';
   import ChatList from 'components/chatList';
   import TextForm from 'components/textForm';
   import ChatTimeline from 'components/chatTimeline';
@@ -54,7 +57,6 @@
       userId: ''
     },
     components: {
-      NavBar,
       ChatList,
       TextForm,
       ChatTimeline,
@@ -64,7 +66,15 @@
         if (chat) {
           this.currentChatId = chat.id;
           this.currentChatName = chat.name;
+          console.log(this.$refs.timeline);
+          this.$refs.timeline.getMessages();
         }
+      },
+
+      createChat: function () {
+        //  get users except
+        // get
+        alert('chat creating window now!');
       }
     },
     created: function () {
@@ -73,7 +83,9 @@
       localStorage.setItem('userName', 'John Doe');
     },
     mounted: function () {
+      console.log(this);
       this.userId = localStorage.getItem('userID');
+      console.log(this.$refs);
     }
   };
 </script>

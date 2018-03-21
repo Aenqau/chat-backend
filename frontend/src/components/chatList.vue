@@ -4,7 +4,7 @@
         v-for="(chat) in chatList"
         class="chat-room"
         :class="{ 'active' : chat.active}"
-        @click.native="pickChat(chat);">
+        @click.native.once="pickChat(chat);">
       <el-row class="chat-room-inner" type="flex">
         <el-col :span="7">
           <div class="pic">
@@ -14,10 +14,10 @@
         <el-col :span="17">
           <el-row>
             <el-col :span="18" class="username">{{ chat.name }}</el-col>
-            <el-col :span="6" class="date">18:14</el-col>
+            <el-col :span="6" class="date">{{ chat.lastMsg.date | formatTime }}</el-col>
           </el-row>
           <p class="last-message">
-            {{ chat.lastMsg }}
+            {{ chat.lastMsg.body }}
           </p>
         </el-col>
       </el-row>
@@ -30,9 +30,11 @@
     background: #fffefe;
     cursor: pointer;
   }
+
   .chat-room.active {
     background: #CFC7C2;
   }
+
   .chat-room-inner {
     width: 100%;
     align-items: center;
@@ -67,6 +69,7 @@
 
 <script>
   import axios from '../my-axios';
+  import moment from 'moment';
 
   export default {
     components: {},
@@ -83,24 +86,39 @@
         }).then(response => {
           response.data.map((chat) => {
             chat.active = false;
-            chat.lastMsg = '';
+            chat.lastMsg = {
+              body: '',
+              date: ''
+            };
             axios.get('/messages/' + chat._id, {
               responseType: 'json',
             }).then(response => {
-              const lastMsgItem = response.data.messages[response.data.messages.length-1];
-              chat.lastMsg = lastMsgItem.body;
-              if (lastMsgItem.author === this.userid) {
-                chat.lastMsg = 'You: '+chat.lastMsg;
+              if (response.data.messages.length) {
+                const lastMsgItem = response.data.messages[response.data.messages.length - 1];
+                chat.lastMsg.body = lastMsgItem.body;
+                chat.lastMsg.date = lastMsgItem.updated;
+                if (lastMsgItem.author === this.userid) {
+                  chat.lastMsg.body = 'You: ' + chat.lastMsg.body;
+                }
               }
+              this.chatList.push(chat);
             });
-            this.chatList.push(chat);
           });
         });
       }
     },
+    filters: {
+      formatTime: function (value) {
+        if (value) {
+          return moment(String(value)).format('hh:mm')
+        }
+      }
+    },
     methods: {
       pickChat: function (chat) {
-        this.chatList.forEach((el)=>{el.active = false;});
+        this.chatList.forEach((el) => {
+          el.active = false;
+        });
         chat.active = true;
         this.$emit('pick_chat', {
           id: chat._id,
