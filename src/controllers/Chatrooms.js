@@ -1,7 +1,7 @@
 import ChatRoom from '../models/chatroom';
 import HttpStatus from 'http-status-codes';
 import { controller, get, post, put, del } from 'koa-dec-router';
-import verifyToken from '../middleware/jwt';
+//  import verifyToken from '../middleware/jwt';
 import BaseCtrl from './Base';
 
 //  @controller('/chat', verifyToken())

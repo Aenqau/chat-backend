@@ -49,9 +49,7 @@ export default class MessagesCtrl extends BaseCtrl {
             } catch (err) {
                 ctx.throw(HttpStatus.BAD_REQUEST, err.message);
             }
-            ctx.body = {
-                success: true
-            }
+            ctx.body = message;
         } catch (err) {
             ctx.status = 403;
             ctx.body = {

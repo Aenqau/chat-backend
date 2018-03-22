@@ -1,137 +1,142 @@
 <template>
-  <el-container class="chat-timeline">
-    <el-header>{{ current_chat_name }}</el-header>
-    <el-main>
-      <el-container
-          v-for="message in messages"
-          class="message"
-          :class="{ 'is-author': message.isAuthor }"
-          type="flex">
-        <el-row class="msg-body" type="flex">
-          <div class="author">
-            <div class="pic" :title="message.author">
-              <img src="" alt="">
-            </div>
-            <span class="date" :title="message.updated | formatDate">
+    <el-container class="chat-timeline">
+        <el-header>{{ current_chat_name }}</el-header>
+        <el-main>
+            <el-container
+                    v-for="message in messages"
+                    class="message"
+                    :class="{ 'is-author': message.isAuthor }"
+                    type="flex">
+                <el-row class="msg-body" type="flex">
+                    <div class="author">
+                        <div class="pic" :title="message.author">
+                            <img src="" alt="">
+                        </div>
+                        <span class="date" :title="message.updated | formatDate">
                 {{ message.updated | formatTime }}
               </span>
-          </div>
-          <div class="msg-text"><div v-if="message.isAuthor" @click="edit(message)" class="edit"></div>{{ message.body }} </div>
-        </el-row>
-      </el-container>
-    </el-main>
-  </el-container>
+                    </div>
+                    <div class="msg-text">
+                        <div v-if="message.isAuthor" @click="edit(message)" class="edit"></div>
+                        {{ message.body }}
+                    </div>
+                </el-row>
+            </el-container>
+        </el-main>
+    </el-container>
 </template>
 
 <style>
-  .message.is-author {
-    justify-content: flex-end;
-  }
-
-  .message.is-author .msg-body {
-    flex-direction: row-reverse;
-  }
-
-  .msg-body {
-    width: 50%;
-    align-items: center;
-
-  }
-
-  .msg-body .date {
-    color: #7b7b7b;
-    font-size: .8em;
-  }
-
-  .msg-text {
-    margin: 0 1.5em;
-    background: #fff;
-    border-radius: 1.2em;
-    box-shadow: 0px 0px 20px 2px rgba(170, 170, 170, 1);
-    padding: .5em 2.5em;
-    position: relative;
-    .edit {
-      width: 16px;
-      height: 16px;
-      position: absolute;
-      left: 15px;
-      top: 12px;
-      transition: all .3s ease;
-      opacity: 0;
-      cursor: pointer;
-      background: url("/images/edit.png") center no-repeat;
-      pointer-events: none;
+    .message.is-author {
+        justify-content: flex-end;
     }
-    &:hover {
-      .edit {
-        opacity: 1;
-        pointer-events: initial;
-      }
-    }
-  }
 
-  .msg-body .pic {
-    width: 2em;
-    height: 2em;
-    margin: 0 auto .2em;
-    border-radius: 50%;
-    overflow: hidden;
-    position: relative;
-    background: url("/static/images/user-pic-placeholder.png") center no-repeat;
-    background-size: contain;
-  }
+    .message.is-author .msg-body {
+        flex-direction: row-reverse;
+    }
+
+    .msg-body {
+        width: 50%;
+        align-items: center;
+
+    }
+
+    .msg-body .date {
+        color: #7b7b7b;
+        font-size: .8em;
+    }
+
+    .msg-text {
+        margin: 0 1.5em;
+        background: #fff;
+        border-radius: 1.2em;
+        box-shadow: 0px 0px 20px 2px rgba(170, 170, 170, 1);
+        padding: .5em 2.5em;
+        position: relative;
+        .edit {
+            width: 16px;
+            height: 16px;
+            position: absolute;
+            left: 15px;
+            top: 12px;
+            transition: all .3s ease;
+            opacity: 0;
+            cursor: pointer;
+            background: url("/images/edit.png") center no-repeat;
+            pointer-events: none;
+        }
+        &:hover {
+            .edit {
+                opacity: 1;
+                pointer-events: initial;
+            }
+        }
+    }
+
+    .msg-body .pic {
+        width: 2em;
+        height: 2em;
+        margin: 0 auto .2em;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+        background: url("/static/images/user-pic-placeholder.png") center no-repeat;
+        background-size: contain;
+    }
 </style>
 
 <script>
-  import Vue from 'vue';
-  import axios from '../my-axios';
-  import moment from 'moment';
-  import VueSocketio from 'vue-socket.io';
+    import Vue from 'vue';
+    import axios from '../my-axios';
+    import moment from 'moment';
+    import VueSocketio from 'vue-socket.io';
 
-  Vue.use(VueSocketio, 'localhost:5000');
-  export default {
-    components: {},
-    props: ['current_chat_id', 'current_chat_name', 'user_id'],
-    data() {
-      return {
-        messages: []
-      };
-    },
-    sockets:{
-      connect: function(){
-      },
-      messagePosted: function(val){
-          this.getMessages();
-      }
-    },
-    filters: {
-      formatDate: function (value) {
-        if (value) {
-          return moment(String(value)).format('MM/DD/YYYY')
-        }
-      }
-      ,
-      formatTime: function (value) {
-        if (value) {
-          return moment(String(value)).format('hh:mm')
-        }
-      }
-    },
-    methods: {
-        edit (message) {
-            console.log('clicked edit message');
+    Vue.use(VueSocketio, 'localhost:5000');
+    export default {
+        components: {},
+        props: ['current_chat_id', 'current_chat_name', 'user_id'],
+        data() {
+            return {
+                messages: []
+            };
         },
-      async getMessages() {
-        this.messages = [];
-        await axios.get('/messages/' + this.current_chat_id, {
-          responseType: 'json',
-        }).then(response => {
-          response.data.messages.map((item) => {
-            item.isAuthor = item.author === this.user_id;
-            this.messages.push(item);
-          });
-        });
-      }
-    }
-  };
+        sockets: {
+            connect: function () {
+            },
+            messagePosted: function (response) {
+                const msg = response.data;
+                msg.isAuthor = msg.author === this.user_id;
+                this.messages.push(msg);
+            }
+        },
+        filters: {
+            formatDate: function (value) {
+                if (value) {
+                    return moment(String(value)).format('MM/DD/YYYY')
+                }
+            }
+            ,
+            formatTime: function (value) {
+                if (value) {
+                    return moment(String(value)).format('hh:mm')
+                }
+            }
+        },
+        methods: {
+            edit(message) {
+                console.log('clicked edit message');
+            },
+            async getMessages() {
+                this.messages = [];
+                await axios.get('/messages/' + this.current_chat_id, {
+                    responseType: 'json',
+                }).then(response => {
+                    response.data.messages.map((item) => {
+                        item.isAuthor = item.author === this.user_id;
+                        this.messages.push(item);
+                    });
+                });
+            }
+        }
+    };
 </script>

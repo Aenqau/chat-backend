@@ -45,7 +45,7 @@
                             body: this.msgForm.msg,
                         }).then(response => {
                             this.$refs['msgForm'].resetFields();
-                            this.$socket.emit('message', true);
+                            this.$socket.emit('message', response);
                         }).catch(error => error)
 
                     } else {
