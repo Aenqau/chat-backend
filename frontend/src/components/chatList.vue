@@ -3,24 +3,25 @@
     <el-container
         v-for="(chat) in chatList"
         class="chat-room"
-        :class="{ 'active' : chat.active}"
-        @click.native.once="pickChat(chat);">
-      <el-row class="chat-room-inner" type="flex">
-        <el-col :span="7">
-          <div class="pic">
-            <img src="" alt="">
-          </div>
-        </el-col>
-        <el-col :span="17">
-          <el-row>
-            <el-col :span="18" class="username">{{ chat.name }}</el-col>
-            <el-col :span="6" class="date">{{ chat.lastMsg.date | formatTime }}</el-col>
-          </el-row>
-          <p class="last-message">
-            {{ chat.lastMsg.body }}
-          </p>
-        </el-col>
-      </el-row>
+        :class="{ 'active' : chat.active}">
+      <router-link :to="'/chat/'+chat._id">
+        <el-row class="chat-room-inner" type="flex">
+          <el-col :span="7">
+            <div class="pic">
+              <img src="" alt="">
+            </div>
+          </el-col>
+          <el-col :span="17">
+            <el-row>
+              <el-col :span="18" class="username">{{ chat.name }}</el-col>
+              <el-col :span="6" class="date">{{ chat.lastMsg.date | formatTime }}</el-col>
+            </el-row>
+            <p class="last-message">
+              {{ chat.lastMsg.body }}
+            </p>
+          </el-col>
+        </el-row>
+      </router-link>
     </el-container>
   </div>
 </template>
@@ -29,6 +30,11 @@
   .chat-room {
     background: #fffefe;
     cursor: pointer;
+    &>a {
+      display: flex;
+      color: #333333;
+      width: 100%;
+    }
   }
 
   .chat-room.active {
@@ -120,10 +126,6 @@
           el.active = false;
         });
         chat.active = true;
-        this.$emit('pick_chat', {
-          id: chat._id,
-          name: chat.name
-        });
       }
     }
   };

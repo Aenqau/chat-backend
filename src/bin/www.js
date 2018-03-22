@@ -2,12 +2,18 @@ import { createServer } from '../lib/server';
 import { env } from '../lib/env';
 import { logger } from '../lib/logger';
 import mongoose from 'mongoose';
+import socket from 'socket.io'
 
 run();
 
 async function run() {
   try {
     const app = await createServer();
+    const io = socket(app);
+
+    io.on('connection', function(socket){
+      console.log('a user connected')
+    });
 
     mongoose.Promise = Promise;
     await mongoose.connect(env.MONGO_SERVER, { useMongoClient: true });

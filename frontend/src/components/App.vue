@@ -3,17 +3,17 @@
     <el-aside :span="8" v-if="userId">
       <el-container class="rooms">
         <el-header>Messages
-          <div class="add-chat-btn" @click="createChat">+</div>
+          <div class="add-chat-btn">+</div>
         </el-header>
-        <chat-list :userid="userId" @pick_chat="setChat"></chat-list>
+        <chat-list :userid="userId"></chat-list>
       </el-container>
     </el-aside>
     <el-main :span="16">
-      <chat-timeline ref="timeline"
-                     :user_id="userId"
-                     :current_chat_id="currentChatId"
-                     :current_chat_name="currentChatName"></chat-timeline>
-      <text-form :user_id="userId" :current_chat_id="currentChatId"></text-form>
+      <router-view
+          element-loading-text="Loading..."
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(255, 255, 255, 0.8)">
+      </router-view>
     </el-main>
   </el-container>
 </template>
@@ -47,35 +47,19 @@
 
 <script>
   import ChatList from 'components/chatList';
-  import TextForm from 'components/textForm';
-  import ChatTimeline from 'components/chatTimeline';
   //  future tweak: show how many users have read your msg
   export default {
-    data: {
-      currentChatId: '',
-      currentChatName: '',
-      userId: ''
+    data () {
+      return {
+        currentChatId: '',
+        currentChatName: '',
+        userId: ''
+      }
     },
     components: {
-      ChatList,
-      TextForm,
-      ChatTimeline,
+      ChatList
     },
     methods: {
-      setChat: function (chat) {
-        if (chat) {
-          this.currentChatId = chat.id;
-          this.currentChatName = chat.name;
-          console.log(this.$refs.timeline);
-          this.$refs.timeline.getMessages();
-        }
-      },
-
-      createChat: function () {
-        //  get users except
-        // get
-        alert('chat creating window now!');
-      }
     },
     created: function () {
       // TODO: replace it with connection to auth server response data
@@ -83,9 +67,7 @@
       localStorage.setItem('userName', 'John Doe');
     },
     mounted: function () {
-      console.log(this);
       this.userId = localStorage.getItem('userID');
-      console.log(this.$refs);
     }
   };
 </script>

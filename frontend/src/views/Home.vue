@@ -1,12 +1,17 @@
 <template>
-  <div>
+  <div class="chat-placeholder">
 
-    Home
+    There will be your chat history
 
   </div>
 </template>
-
-<script>
-export default {
-};
-</script>
+<style>
+  .chat-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    opacity: .3;
+  }
+</style>

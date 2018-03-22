@@ -63,9 +63,12 @@
 </style>
 
 <script>
+  import Vue from 'vue';
   import axios from '../my-axios';
   import moment from 'moment'
+  import VueSocketio from 'vue-socket.io';
 
+  Vue.use(VueSocketio, 'localhost:5000');
   export default {
     components: {},
     props: ['current_chat_id', 'current_chat_name', 'user_id'],
@@ -73,6 +76,14 @@
       return {
         messages: []
       };
+    },
+    sockets:{
+      connect: function(){
+        console.log('socket connected')
+      },
+      customEmit: function(val){
+        console.log('this method was fired by the socket server. eg: io.emit("customEmit", data)')
+      }
     },
     filters: {
       formatDate: function (value) {
@@ -87,10 +98,14 @@
         }
       }
     },
+    mounted () {
+      const val = 'huehuehue';
+      // $socket is socket.io-client instance
+      this.$socket.emit('emit_method', val);
+    },
     methods: {
       async getMessages() {
         this.messages = [];
-        console.log('currentchatid is: '+this.current_chat_id);
         await axios.get('/messages/' + this.current_chat_id, {
           responseType: 'json',
         }).then(response => {
