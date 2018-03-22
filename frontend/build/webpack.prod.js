@@ -6,7 +6,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ProgressPlugin = require('webpack/lib/ProgressPlugin');
 const OfflinePlugin = require('offline-plugin');
 const BabiliPlugin = require( 'babel-minify-webpack-plugin' );
-const { getPostCssConfig } = require( '@ckeditor/ckeditor5-dev-utils' ).styles;
 const rm = require('rimraf')
 const base = require('./webpack.base')
 const pkg = require('../package')

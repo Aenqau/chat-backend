@@ -16,7 +16,7 @@
                 {{ message.updated | formatTime }}
               </span>
           </div>
-          <div class="msg-text">{{ message.body }}</div>
+          <div class="msg-text"><div v-if="message.isAuthor" @click="edit(message)" class="edit"></div>{{ message.body }} </div>
         </el-row>
       </el-container>
     </el-main>
@@ -35,6 +35,7 @@
   .msg-body {
     width: 50%;
     align-items: center;
+
   }
 
   .msg-body .date {
@@ -47,7 +48,26 @@
     background: #fff;
     border-radius: 1.2em;
     box-shadow: 0px 0px 20px 2px rgba(170, 170, 170, 1);
-    padding: .5em;
+    padding: .5em 2.5em;
+    position: relative;
+    .edit {
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      left: 15px;
+      top: 12px;
+      transition: all .3s ease;
+      opacity: 0;
+      cursor: pointer;
+      background: url("/images/edit.png") center no-repeat;
+      pointer-events: none;
+    }
+    &:hover {
+      .edit {
+        opacity: 1;
+        pointer-events: initial;
+      }
+    }
   }
 
   .msg-body .pic {
@@ -65,7 +85,7 @@
 <script>
   import Vue from 'vue';
   import axios from '../my-axios';
-  import moment from 'moment'
+  import moment from 'moment';
   import VueSocketio from 'vue-socket.io';
 
   Vue.use(VueSocketio, 'localhost:5000');
@@ -79,10 +99,9 @@
     },
     sockets:{
       connect: function(){
-        console.log('socket connected')
       },
-      customEmit: function(val){
-        console.log('this method was fired by the socket server. eg: io.emit("customEmit", data)')
+      messagePosted: function(val){
+          this.getMessages();
       }
     },
     filters: {
@@ -98,12 +117,10 @@
         }
       }
     },
-    mounted () {
-      const val = 'huehuehue';
-      // $socket is socket.io-client instance
-      this.$socket.emit('emit_method', val);
-    },
     methods: {
+        edit (message) {
+            console.log('clicked edit message');
+        },
       async getMessages() {
         this.messages = [];
         await axios.get('/messages/' + this.current_chat_id, {
