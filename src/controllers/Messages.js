@@ -3,10 +3,11 @@ import ChatRoom from '../models/chatroom';
 import HttpStatus from 'http-status-codes';
 import { controller, get, post, put, del } from 'koa-dec-router';
 //  import verifyToken from '../middleware/jwt';
+import socketProcess from '../middleware/socket';
 import BaseCtrl from './Base';
 
 //  @controller('/messages', verifyToken())
-@controller('/messages')
+@controller('/messages', socketProcess())
 
 export default class MessagesCtrl extends BaseCtrl {
     //  localhost:5006/api/messages/5aa13d7f4e3bca3a382de894
@@ -74,14 +75,28 @@ export default class MessagesCtrl extends BaseCtrl {
 
     @del('/:_id')
     async deleteMessage (ctx) {
-        //  TODO: check if user have a permission
-        const message = ctx.body.message;
+      try {
+        await ChatRoom.find({
+          users : { $in : [{_id: process.env.USER_ID}] }
+        });
 
-        await message.remove();
-
-        ctx.status = 200;
-        ctx.body = {
-            success: true
+        try {
+          await Message.find().and([
+            { author : process.env.USER_ID },
+            { _id : ctx.params._id }
+          ]);
+          console.log(ctx.app);
+          ctx.app.chat.sockets.emit('messageDeleted', true);
+        } catch (err) {
+          ctx.throw(HttpStatus.BAD_REQUEST, err.message);
         }
+        ctx.body = 'message found';
+      } catch (err) {
+        ctx.status = 403;
+        ctx.body = {
+          error: err
+        }
+      }
+
     }
 }
