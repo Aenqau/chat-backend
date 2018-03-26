@@ -95,7 +95,7 @@
                 body: this.msgForm.msg,
               }).then(response => {
                 this.$refs['msgForm'].resetFields();
-                this.$socket.emit('message', response);
+                this.$socket.emit('messagePost', response);
                 this.loading = false;
               }).catch(error => error)
 

@@ -9,8 +9,12 @@
 </template>
 
 <script>
+  import Vue from 'vue';
   import TextForm from 'components/textForm';
   import ChatTimeline from 'components/chatTimeline';
+  import VueSocketio from 'vue-socket.io';
+
+  Vue.use(VueSocketio, 'localhost:5000');
   export default {
     data () {
       return {
@@ -28,9 +32,13 @@
       this.currentChatId = this.$router.currentRoute.params.oid;
     },
     mounted() {
-      this.$refs.timeline.getMessages();
+      console.log('joining chat, id = '+this.currentChatId),
+      this.$socket.emit('join', {chatId: this.currentChatId}),
+      this.$refs.timeline.getMessages()
     },
-    updated(){
+    updated: function (){
+      console.log('joining chat, id = '+this.currentChatId);
+      this.$socket.emit('join', {chatId: this.currentChatId});
       this.$refs.timeline.getMessages();
     },
     beforeRouteUpdate (to, from, next) {

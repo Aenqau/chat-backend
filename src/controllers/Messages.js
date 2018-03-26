@@ -3,11 +3,10 @@ import ChatRoom from '../models/chatroom';
 import HttpStatus from 'http-status-codes';
 import { controller, get, post, put, del } from 'koa-dec-router';
 //  import verifyToken from '../middleware/jwt';
-import socketProcess from '../middleware/socket';
 import BaseCtrl from './Base';
 
 //  @controller('/messages', verifyToken())
-@controller('/messages', socketProcess())
+@controller('/messages')
 
 export default class MessagesCtrl extends BaseCtrl {
     //  localhost:5006/api/messages/5aa13d7f4e3bca3a382de894
@@ -84,13 +83,11 @@ export default class MessagesCtrl extends BaseCtrl {
           await Message.find().and([
             { author : process.env.USER_ID },
             { _id : ctx.params._id }
-          ]);
-          console.log(ctx.app);
-          ctx.app.chat.sockets.emit('messageDeleted', true);
+          ]).remove().exec();
         } catch (err) {
           ctx.throw(HttpStatus.BAD_REQUEST, err.message);
         }
-        ctx.body = 'message found';
+        ctx.body = ctx.params._id;
       } catch (err) {
         ctx.status = 403;
         ctx.body = {

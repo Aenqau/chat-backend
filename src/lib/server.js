@@ -5,6 +5,7 @@ import respond from 'koa-respond';
 import bodyParser from 'koa-bodyparser';
 import compress from 'koa-compress';
 import DecRouter from 'koa-dec-router';
+import send from 'koa-send';
 
 import { logger } from './logger';
 
@@ -40,6 +41,10 @@ export async function createServer() {
     .use(decRouter.router.routes())
     .use(decRouter.router.allowedMethods())
     // Default handler when nothing stopped the chain.
+    .use(async ctx => {
+      const file = ctx.path === '' ? '/index.html' : ctx.path;
+      await send(ctx, file, { root: `${__dirname}/../static` });
+    })
     .use(notFoundHandler);
 
   // Creates a http server ready to listen.

@@ -155,7 +155,7 @@
   import io from 'socket.io-client';
 
   const socket = io('localhost:5000/chat');
-  Vue.use(VueSocketio, socket);
+  Vue.use(VueSocketio, 'localhost:5000');
   export default {
     props: ['current_chat_id', 'current_chat_name', 'user_id'],
     data() {
@@ -167,17 +167,19 @@
       connect: function () {
         console.log('connected');
       },
+        joined: function (data) {
+          alert(data);
+        },
       messagePosted: function (response) {
         const msg = response.data;
         msg.isAuthor = msg.author === this.user_id;
         msg.optionsOpen = false;
         this.messages.push(msg);
       },
-      messageDeleted: function (response) {
-        alert('message deleted');
-      },
-      tweet: function (tweet) {
-        console.log(tweet);
+      messageDelete: function (response) {
+          console.log('caught message delete socket event');
+          const index = this.messages.indexOf({_id: response});
+          if (index !== -1) this.messages.splice(index, 1);
       }
     },
     filters: {
@@ -202,14 +204,9 @@
         await axios.delete('/messages/' + message._id, {
           responseType: 'json',
         }).then(response => {
-          response.data.messages.map((item) => {
-            item.isAuthor = item.author === this.user_id;
-            item.optionsOpen = false;
-            this.messages.push(item);
-          });
+            console.log('message deleted, emitting event');
+            this.$socket.emit('messageDeleted', message._id);
         });
-        console.log('removing message');
-        console.log();
       },
       async getMessages() {
         this.messages = [];
