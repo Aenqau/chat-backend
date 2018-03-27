@@ -18,7 +18,7 @@ async function run() {
 
       socket.on('join', function (data) {
         socket.join(data.chatId);
-        socket.nsp.to(socket.rooms).emit('joined', 'joined room!');
+        socket.to(socket.rooms).emit('joined', 'joined room!');
         console.log('joined room');
         console.log(socket.rooms);
       });
