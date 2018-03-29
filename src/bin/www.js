@@ -14,13 +14,9 @@ async function run() {
     app.chat = chatNamespace;
 */
     io.on('connection', function(socket){
-      console.log('someone connected');
-
-      socket.on('join', function (data) {
-        socket.join(data.chatId);
-        socket.to(socket.rooms).emit('joined', 'joined room!');
-        console.log('joined room');
-        console.log(socket.rooms);
+      socket.on('join', function (room) {
+        socket.join(room);
+        socket.in(room).emit('joined', 'joined room!');
       });
 
       socket.on('leave', function () {
@@ -31,9 +27,8 @@ async function run() {
         io.sockets.in(socket.rooms).emit('userIsTyping', data);
       });
 
-      socket.on('messagePost', function (data) {
-          console.log('message has been posted');
-          socket.manager.sockets.in(socket.rooms[0]).emit('messagePosted', data);
+      socket.on('messagePosted', function (data) {
+          io.sockets.in(data.room).emit('messagePosted', data.message);
       });
 
       socket.on('messageChanged', function (data) {
@@ -41,29 +36,12 @@ async function run() {
       });
 
       socket.on('messageDeleted', function (data) {
-        console.log('message has been deleted');
-          socket.broadcast.to(socket.rooms).emit('messageDelete', data);
-        //io.sockets.in(socket.rooms).emit('messageDelete', data);
+        io.sockets.in(data.room).emit('messageDeleted', data.messageId);
       });
 
       socket.on('disconnect', function(){ });
     });
 
-
-/*
-    io.on('join', function* () {
-      console.log('join event received, new user: ', this.data);
-
-      // use global io send broad cast
-      io.emit('msg', '[All]: ' + this.data + ' joind');
-
-      // use current socket send a broadcast
-      this.socket.broadcast('msg', '[All]: Hello guys, I\'m ' + this.data + '.');
-
-      // just send to current user
-      this.socket.emit('msg', '[' + this.data + ']' + " Welcome to koa-socket.io !");
-    });
-*/
     mongoose.Promise = Promise;
     await mongoose.connect(env.MONGO_SERVER, {useMongoClient: true});
 

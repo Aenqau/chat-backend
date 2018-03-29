@@ -3,8 +3,9 @@
     <chat-timeline ref="timeline"
                    :user_id="userId"
                    :current_chat_id="currentChatId"
-                   :current_chat_name="currentChatName"></chat-timeline>
-    <text-form :user_id="userId" :current_chat_id="currentChatId"></text-form>
+                   :current_chat_name="currentChatName"
+                   @edit="editMessage()"></chat-timeline>
+    <text-form :user_id="userId" :current_chat_id="currentChatId" :editing_message="message"></text-form>
   </div>
 </template>
 
@@ -20,6 +21,7 @@
       return {
         currentChatId: '',
         currentChatName: '',
+        message: '',
         userId: ''
       }
     },
@@ -27,18 +29,21 @@
       TextForm,
       ChatTimeline
     },
+    methods: {
+      editMessage (event) {
+        console.log(event);
+      },
+    },
     created() {
       this.userId = localStorage.getItem('userID');
       this.currentChatId = this.$router.currentRoute.params.oid;
     },
     mounted() {
-      console.log('joining chat, id = '+this.currentChatId),
-      this.$socket.emit('join', {chatId: this.currentChatId}),
+      this.$socket.emit('join', this.currentChatId),
       this.$refs.timeline.getMessages()
     },
     updated: function (){
-      console.log('joining chat, id = '+this.currentChatId);
-      this.$socket.emit('join', {chatId: this.currentChatId});
+      this.$socket.emit('join', this.currentChatId);
       this.$refs.timeline.getMessages();
     },
     beforeRouteUpdate (to, from, next) {

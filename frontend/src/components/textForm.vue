@@ -1,11 +1,12 @@
 <template>
-  <el-form :model="msgForm" :rules="rules" ref="msgForm" class="message-form">
-    <el-form-item prop="msg" class="message-area">
+  <el-form :model="msgForm" ref="msgForm" class="message-form">
+    <el-form-item class="message-area">
       <el-input
           type="textarea"
           autosize
           placeholder="Please input your message"
-          v-model="msgForm.msg">
+          v-model="msgForm.msg"
+          @keydown.enter.native.exact.prevent="submitForm()">
       </el-input>
       <div class="send" @click="submitForm()">
         <img v-if="!loading" src="/images/send.svg" alt="">
@@ -29,6 +30,7 @@
   textarea.el-textarea__inner {
     border: none;
     resize: none;
+    white-space: pre-wrap;
     &.disabled {
       cursor: not-allowed;
     }
@@ -77,35 +79,28 @@
         msgForm: {
           msg: '',
         },
-        rules: {
-          msg: [
-            {required: true, message: 'Please enter a message', trigger: 'blur'},
-          ],
-        },
       };
     },
     methods: {
       submitForm() {
         if (!this.loading) {
-          this.$refs['msgForm'].validate((valid) => {
-            if (valid) {
-              this.loading = true;
-              axios.post('/messages/' + this.user_id, {
-                chat: this.current_chat_id,
-                body: this.msgForm.msg,
-              }).then(response => {
-                this.$refs['msgForm'].resetFields();
-                this.$socket.emit('messagePost', response);
-                this.loading = false;
-              }).catch(error => error)
-
-            } else {
-              return false;
-            }
-          });
+          if (this.msgForm.msg) {
+            this.loading = true;
+            axios.post('/messages/' + this.user_id, {
+              chat: this.current_chat_id,
+              body: this.msgForm.msg,
+            }).then(response => {
+              this.$refs['msgForm'].resetFields();
+              this.$socket.emit('messagePosted', {
+                room: this.current_chat_id,
+                message: response
+              });
+              this.loading = false;
+              this.msgForm.msg = '';
+            }).catch(error => error)
+          }
         }
       },
-
     }
   };
 </script>

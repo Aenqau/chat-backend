@@ -16,14 +16,17 @@
                 {{ message.updated | formatTime }}
               </span>
           </div>
-          <div class="msg-text" >
-            <div class="options" @mouseleave="message.optionsOpen = false" v-if="message.isAuthor" @click="message.optionsOpen = true">
-              <div class="options-list"  :class="{'active': message.optionsOpen }">
+          <div class="msg-text">
+            <div class="options" @mouseleave="message.optionsOpen = false" v-if="message.isAuthor"
+                 @click="message.optionsOpen = true">
+              <div class="options-list" :class="{'active': message.optionsOpen }">
                 <div class="edit" @click="editMessage(message);">Edit message</div>
                 <div class="remove" @click="removeMessage(message);">Remove message</div>
               </div>
             </div>
-            {{ message.body }}
+              <p>
+                {{ message.body }}
+              </p>
           </div>
         </el-row>
       </el-container>
@@ -38,7 +41,9 @@
     max-height: calc(100vh - 172px);
     overflow-y: auto;
   }
-
+  .el-main {
+    padding-bottom: 80px;
+  }
   .message.is-author {
     justify-content: flex-end;
   }
@@ -50,7 +55,7 @@
   .msg-body {
     width: 50%;
     align-items: center;
-
+    margin-bottom: 1rem;
   }
 
   .msg-body .date {
@@ -63,8 +68,12 @@
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px 2px rgba(230, 230, 230, 1);
-    padding: .5em 2.5em;
+    padding: 0 2.5em;
     position: relative;
+    white-space: pre-line;
+    p {
+      margin-top: -10px;
+    }
     .options {
       width: 16px;
       height: 32px;
@@ -105,7 +114,7 @@
         &:hover {
           color: #E95700;
         }
-        &+div {
+        & + div {
           margin-top: 4px;
         }
         &::before {
@@ -152,9 +161,7 @@
   import axios from '../my-axios';
   import moment from 'moment';
   import VueSocketio from 'vue-socket.io';
-  import io from 'socket.io-client';
 
-  const socket = io('localhost:5000/chat');
   Vue.use(VueSocketio, 'localhost:5000');
   export default {
     props: ['current_chat_id', 'current_chat_name', 'user_id'],
@@ -167,19 +174,14 @@
       connect: function () {
         console.log('connected');
       },
-        joined: function (data) {
-          alert(data);
-        },
       messagePosted: function (response) {
         const msg = response.data;
         msg.isAuthor = msg.author === this.user_id;
         msg.optionsOpen = false;
         this.messages.push(msg);
       },
-      messageDelete: function (response) {
-          console.log('caught message delete socket event');
-          const index = this.messages.indexOf({_id: response});
-          if (index !== -1) this.messages.splice(index, 1);
+      messageDeleted: function (response) {
+        this.messages = this.messages.filter(item => item._id !== response);
       }
     },
     filters: {
@@ -191,21 +193,26 @@
       ,
       formatTime: function (value) {
         if (value) {
-          return moment(String(value)).format('hh:mm')
+          return moment(String(value)).format('HH:mm')
         }
       }
     },
     methods: {
       editMessage(message) {
-        console.log('editing message');
-        console.log(message);
+        const msg = {
+          id: message._id,
+          body: message.body
+        };
+        this.$emit('edit', msg);
       },
       async removeMessage(message) {
         await axios.delete('/messages/' + message._id, {
           responseType: 'json',
         }).then(response => {
-            console.log('message deleted, emitting event');
-            this.$socket.emit('messageDeleted', message._id);
+          this.$socket.emit('messageDeleted', {
+            room: this.current_chat_id,
+            messageId: message._id
+          });
         });
       },
       async getMessages() {
